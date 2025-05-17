@@ -43,6 +43,7 @@ program
   .option('-m, --model <model>', 'Model to use (sonar-large, sonar-small)', 'sonar-large')
   .option('-t, --temperature <number>', 'Temperature (0-2)', '0.7')
   .option('-max, --max-tokens <number>', 'Maximum number of tokens to generate', '1000')
+  .option('-c, --citations', 'Show citations in the response', false)
   .action(async (prompt, options) => {
     try {
       const apiKey = getApiKey(options.apiKey);
@@ -51,6 +52,9 @@ program
       
       console.log(chalk.cyan(`\n🤖 Using model: ${model}`));
       console.log(chalk.blue(`💬 Prompt: ${prompt}\n`));
+      if (options.citations) {
+        console.log(chalk.yellow('📚 Citations enabled\n'));
+      }
       
       const spinner = ora('Thinking...').start();
       
@@ -59,7 +63,8 @@ program
         prompt,
         model,
         parseFloat(options.temperature),
-        parseInt(options.maxTokens)
+        parseInt(options.maxTokens),
+        options.citations
       );
       
       spinner.succeed('Response received:');

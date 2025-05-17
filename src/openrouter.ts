@@ -6,9 +6,9 @@ export const createOpenRouterClient = (apiKey: string) => {
     baseURL: 'https://openrouter.ai/api/v1',
     apiKey: apiKey,
     defaultHeaders: {
-      'HTTP-Referer': process.env.SITE_URL || 'http://localhost:3000',
-      'X-Title': process.env.SITE_NAME || 'OpenRouter CLI Test',
-    },
+      'HTTP-Referer': 'http://localhost:3000',
+      'X-Title': 'OpenRouter CLI Test',
+    }
   });
 };
 
@@ -18,9 +18,19 @@ export const chatWithPerplexity = async (
   prompt: string,
   modelName: string = 'perplexity/llama-3.1-sonar-large-128k-online',
   temperature: number = 0.7,
-  maxTokens: number = 1000
+  maxTokens: number = 1000,
+  showCitations: boolean = false
 ) => {
   try {
+    console.log('Sending request to OpenRouter with model:', modelName);
+    
+    // Log request details for debugging
+    console.log('Request details:');
+    const maskedApiKey = client.apiKey ? `${client.apiKey.substring(0, 5)}...${client.apiKey.substring(client.apiKey.length - 5)}` : 'No API key';
+    console.log('- API Key format:', maskedApiKey);
+    console.log('- Base URL:', client.baseURL);
+    console.log('- Show citations:', showCitations);
+    
     const completion = await client.chat.completions.create({
       model: modelName,
       messages: [
@@ -31,7 +41,8 @@ export const chatWithPerplexity = async (
       ],
       temperature: temperature,
       max_tokens: maxTokens,
-    });
+      show_citations: showCitations // Enable citations when requested
+    } as any); // Using type assertion to allow for OpenRouter specific parameters
 
     return completion.choices[0].message.content;
   } catch (error) {
